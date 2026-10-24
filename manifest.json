@@ -1,0 +1,9 @@
+{
+  "name": "Tutor Ortográfico AI",
+  "short_name": "Tutor",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#2563eb",
+  "description": "App para mejorar la ortografía de forma local y offline."
+}
