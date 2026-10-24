@@ -1,10 +1,21 @@
 // app.js
+
+// 1. Registrar Service Worker para Modo Offline
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      console.log('Modo Offline Activado!', reg);
+    });
+  });
+}
+
 let ejActual = null;
 let ultimoId = null;
 let textoActual = "";
 
-// Cargar LocalStorage
+// Cargar LocalStorage (Estadísticas y Errores)
 let stats = JSON.parse(localStorage.getItem('ortografia_stats')) || {};
+let historialErrores = JSON.parse(localStorage.getItem('ortografia_errores')) || [];
 
 function inicializarStats() {
     EJERCICIOS.forEach(ej => {
@@ -23,6 +34,7 @@ function switchTab(tabId) {
 
     if(tabId === 'practica' && !ejActual) cargarEjercicio();
     if(tabId === 'diagnostico') cargarDiagnostico();
+    if(tabId === 'errores') cargarErrores();
 }
 
 function reproducirDictado() {
@@ -33,7 +45,7 @@ function reproducirDictado() {
     window.speechSynthesis.speak(speech);
 }
 
-// Logica del Teclado Virtual
+// Lógica del Teclado Virtual
 function teclear(letra) {
     textoActual += letra;
     document.getElementById('pantalla-texto').innerText = textoActual;
@@ -99,9 +111,7 @@ function cargarEjercicio() {
             btn.onclick = () => procesarRespuesta(op, btn);
             document.getElementById('area-opciones').appendChild(btn);
         });
-        
     } else {
-        // Modalidad completar o dictado (Usan el Teclado Virtual)
         document.getElementById('area-texto-libre').style.display = 'block';
         document.getElementById('teclado-virtual').style.display = 'block';
         
@@ -121,14 +131,28 @@ function comprobarTextoLibre() {
 }
 
 function procesarRespuesta(respuestaUsuario, botonPresionado = null) {
-    const esCorrecto = (respuestaUsuario.trim().toLowerCase() === ejActual.respuesta.toLowerCase());
+    const respLimpia = respuestaUsuario.trim().toLowerCase();
+    const corrLimpia = ejActual.respuesta.toLowerCase();
+    const esCorrecto = (respLimpia === corrLimpia);
     
-    // Guardar stats
+    // Guardar Estadísticas
     stats[ejActual.categoria].intentos += 1;
-    if (esCorrecto) stats[ejActual.categoria].aciertos += 1;
+    if (esCorrecto) {
+        stats[ejActual.categoria].aciertos += 1;
+    } else {
+        // Guardar Error para Gemini (Máximo guardamos los últimos 50)
+        historialErrores.unshift({
+            categoria: ejActual.categoria,
+            pregunta: ejActual.pregunta,
+            yo_escribi: respLimpia,
+            era_correcta: corrLimpia
+        });
+        if (historialErrores.length > 50) historialErrores.pop();
+        localStorage.setItem('ortografia_errores', JSON.stringify(historialErrores));
+    }
+    
     localStorage.setItem('ortografia_stats', JSON.stringify(stats));
     
-    // Ocultar zonas activas
     document.getElementById('teclado-virtual').style.display = 'none';
     if(botonPresionado) {
         document.querySelectorAll('.btn-opcion').forEach(b => b.disabled = true);
@@ -168,6 +192,51 @@ function cargarDiagnostico() {
             </div>`;
     }
     container.innerHTML = html;
+}
+
+// ------------------------------------
+// NUEVAS FUNCIONES PARA GESTIONAR ERRORES
+// ------------------------------------
+
+function generarTextoErrores() {
+    if (historialErrores.length === 0) return "¡Felicidades! No tienes errores registrados aún.";
+    
+    let txt = "Hola Gemini, he estado practicando ortografía y cometí estos errores. Por favor, analízalos y genérame nuevos ejercicios en formato JSON enfocados en solucionar mis debilidades:\n\n";
+    
+    historialErrores.forEach((err, i) => {
+        txt += `${i+1}. Categoría: [${err.categoria}]\n`;
+        if (err.pregunta.includes("¿")) {
+            txt += `   Audio/Dictado\n`;
+        } else {
+            txt += `   Pregunta: "${err.pregunta}"\n`;
+        }
+        txt += `   Yo escribí: "${err.yo_escribi}"\n`;
+        txt += `   Lo correcto era: "${err.era_correcta}"\n\n`;
+    });
+    
+    return txt;
+}
+
+function cargarErrores() {
+    const texto = generarTextoErrores();
+    document.getElementById('texto-errores').textContent = texto;
+}
+
+function copiarErrores() {
+    const texto = generarTextoErrores();
+    navigator.clipboard.writeText(texto).then(() => {
+        alert("¡Texto copiado! Pégalo en el chat de Gemini.");
+    }).catch(err => {
+        alert("Error al copiar. Selecciona el texto manualmente.");
+    });
+}
+
+function limpiarErrores() {
+    if(confirm("¿Seguro que quieres borrar tu historial de errores? (Tus estadísticas no se borrarán)")) {
+        historialErrores = [];
+        localStorage.setItem('ortografia_errores', JSON.stringify(historialErrores));
+        cargarErrores();
+    }
 }
 
 // Inicializar
