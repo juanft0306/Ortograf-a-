@@ -4,24 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tutor Web AI</title>
+    <!-- Enlace al PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     <style>
         :root { --primary: #2563eb; --bg: #f1f5f9; --card: #ffffff; --text: #1e293b; --tecla: #e2e8f0; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; touch-action: manipulation; }
         .container { max-width: 500px; margin: 0 auto; }
         
-        /* Tabs */
         .tabs { display: flex; background: var(--card); border-radius: 10px; overflow: hidden; margin-bottom: 15px;}
-        .tabs button { flex: 1; padding: 12px; border: none; background: none; font-size: 16px; font-weight: bold; color: #94a3b8; cursor: pointer; }
+        .tabs button { flex: 1; padding: 12px 5px; border: none; background: none; font-size: 14px; font-weight: bold; color: #94a3b8; cursor: pointer; }
         .tabs button.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #eff6ff;}
         
         .view { display: none; background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .view.active { display: block; }
         
-        /* Ejercicio UI */
         .badge-cat { display: inline-block; background: #dbeafe; color: var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
         .pregunta-texto { font-size: 19px; font-weight: 600; margin-bottom: 20px; text-align: center; }
         
-        /* Falso Input (Pantalla) */
         .pantalla-input { 
             width: 100%; min-height: 50px; padding: 10px; border: 2px solid #cbd5e1; border-radius: 10px; 
             font-size: 22px; text-align: center; font-weight: bold; color: var(--primary); background: #f8fafc;
@@ -29,24 +28,18 @@
             margin-bottom: 15px; word-break: break-all;
         }
         
-        /* Teclado Virtual */
         #teclado-virtual { display: none; margin-top: 10px; }
         .fila-teclado { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; }
-        .tecla { 
-            flex: 1; max-width: 35px; height: 45px; background: var(--tecla); border: none; border-radius: 6px;
-            font-size: 18px; font-weight: 500; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
+        .tecla { flex: 1; max-width: 35px; height: 45px; background: var(--tecla); border: none; border-radius: 6px; font-size: 18px; font-weight: 500; cursor: pointer; }
         .tecla:active { background: #cbd5e1; transform: scale(0.95); }
         .tecla-accion { flex: 2; max-width: 65px; background: #94a3b8; color: white; font-size: 14px; font-weight: bold; }
         .tecla-espacio { flex: 5; max-width: 150px; }
-        .fila-tildes .tecla { background: #dbeafe; color: var(--primary); } /* Tildes resaltadas */
+        .fila-tildes .tecla { background: #dbeafe; color: var(--primary); }
         
-        /* Botones Generales */
         .btn-opcion { display: block; width: 100%; padding: 15px; margin-bottom: 10px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 18px; font-weight: 500;}
         .btn-submit { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin-top: 10px; }
         .btn-dictado { background: #8b5cf6; color: white; border: none; padding: 15px; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; margin: 0 auto 15px auto; display: block; }
         
-        /* Feedback */
         .feedback { margin-top: 15px; padding: 15px; border-radius: 10px; display: none; }
         .feedback.correct { background: #d1fae5; border: 1px solid #34d399; }
         .feedback.incorrect { background: #fee2e2; border: 1px solid #f87171; }
@@ -54,13 +47,17 @@
         .stat-bar-container { background: #e2e8f0; border-radius: 8px; height: 8px; width: 100%; margin: 8px 0 15px 0; }
         .stat-bar { height: 100%; border-radius: 8px; }
         .stat-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;}
+        
+        /* Zona de Errores */
+        .caja-errores { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 14px; height: 300px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px;}
     </style>
 </head>
 <body>
 <div class="container">
     <div class="tabs">
         <button class="active" onclick="switchTab('practica')">Entrenar</button>
-        <button onclick="switchTab('diagnostico')">Diagnóstico</button>
+        <button onclick="switchTab('diagnostico')">Progreso</button>
+        <button onclick="switchTab('errores')">Mis Errores</button>
     </div>
 
     <!-- Pestaña Práctica -->
@@ -72,13 +69,10 @@
             </div>
             <div class="pregunta-texto" id="ej-pregunta"></div>
             
-            <!-- Zona de Respuesta (Opciones o Teclado) -->
             <div id="area-opciones"></div>
             
             <div id="area-texto-libre" style="display:none;">
                 <div class="pantalla-input" id="pantalla-texto"></div>
-                
-                <!-- Nuestro Teclado Personalizado -->
                 <div id="teclado-virtual">
                     <div class="fila-teclado fila-tildes">
                         <button class="tecla" onclick="teclear('á')">á</button>
@@ -141,10 +135,18 @@
         <h3 style="margin-top:0;">Tu Rendimiento</h3>
         <div id="stats-container"></div>
     </div>
+
+    <!-- Pestaña Mis Errores (NUEVO) -->
+    <div id="view-errores" class="view">
+        <h3 style="margin-top:0;">Exportar para Gemini</h3>
+        <p style="font-size:14px; color:#64748b;">Copia este texto y pégalo en Gemini para que te genere nuevos ejercicios basados en tus fallos reales.</p>
+        <div class="caja-errores" id="texto-errores"></div>
+        <button class="btn-submit" onclick="copiarErrores()">Copiar Texto 📋</button>
+        <button class="btn-submit" style="background: #ef4444; margin-top:10px;" onclick="limpiarErrores()">Borrar Historial 🗑️</button>
+    </div>
 </div>
 
 <script src="diccionario.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
-  
