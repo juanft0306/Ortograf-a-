@@ -89,6 +89,22 @@ const EJERCICIOS = [
     { id: 71, categoria: "Tildes", tipo: "opcion", pregunta: "___ teléfono está sonando.", opciones: ["El", "Él"], respuesta: "El", explicacion: "'El' sin tilde es artículo que acompaña al sustantivo (el teléfono)." },
     { id: 72, categoria: "Tildes", tipo: "opcion", pregunta: "El regalo es para ___.", opciones: ["él", "el"], respuesta: "él", explicacion: "'Él' con tilde es pronombre personal referencial a una persona." },
     { id: 73, categoria: "Tildes", tipo: "opcion", pregunta: "Dile a ___ que venga.", opciones: ["él", "el"], respuesta: "él", explicacion: "'Él' con tilde reemplaza el nombre de un hombre, lleva tilde." },
-    { id: 74, categoria: "C/S/Z", tipo: "dictado", pregunta: "televisión", opciones: [], respuesta: "televisión", explicacion: "Deriva de televisor (terminado en -sor), por lo que lleva -sión con S." }
-        
+    { id: 74, categoria: "C/S/Z", tipo: "dictado", pregunta: "televisión", opciones: [], respuesta: "televisión", explicacion: "Deriva de televisor (terminado en -sor), por lo que lleva -sión con S." },
+    { id: 75, categoria: "Tildes", tipo: "dictado", pregunta: "burbuja", opciones: [], respuesta: "burbuja", explicacion: "Es una palabra grave terminada en vocal. Las graves terminadas en N, S o vocal NO llevan tilde." },
+    { id: 76, categoria: "Tildes", tipo: "dictado", pregunta: "joven", opciones: [], respuesta: "joven", explicacion: "Palabra grave terminada en N. NO lleva tilde (jóvenes sí lleva por ser esdrújula)." },
+    { id: 77, categoria: "Tildes", tipo: "completar", pregunta: "Coloca tilde si es necesario: dificilmente", opciones: [], respuesta: "difícilmente", explicacion: "Los adverbios en -mente conservan la tilde del adjetivo original. Como 'difícil' lleva tilde, la conserva." },
+    { id: 78, categoria: "Tildes", tipo: "completar", pregunta: "Coloca tilde si es necesario: rapidamente", opciones: [], respuesta: "rápidamente", explicacion: "'Rápida' es esdrújula y lleva tilde, por lo tanto 'rápidamente' la conserva." },
+    { id: 79, categoria: "Tildes", tipo: "opcion", pregunta: "¿Sabes ___ llega el tren?", opciones: ["cuándo", "cuando"], respuesta: "cuándo", explicacion: "En interrogativas indirectas (cuando preguntas sin signos directos), 'cuándo' lleva tilde diacrítica." },
+    { id: 80, categoria: "Tildes", tipo: "opcion", pregunta: "Te invitaría un ___, pero no hay.", opciones: ["té", "te"], respuesta: "té", explicacion: "Té con tilde se refiere a la bebida (sustantivo). Te sin tilde es pronombre." },
+    { id: 81, categoria: "Tildes", tipo: "dictado", pregunta: "brújula", opciones: [], respuesta: "brújula", explicacion: "Es una palabra esdrújula (la mayor fuerza de voz está en la antepenúltima sílaba). TODAS las esdrújulas llevan tilde." },
+    { id: 82, categoria: "Homófonas", tipo: "opcion", pregunta: "La película se ___ en hechos reales.", opciones: ["vasa", "basa", "vaza"], respuesta: "basa", explicacion: "Viene del verbo basar (apoyar algo en una base). Se escribe con B y S." },
+    { id: 83, categoria: "Uso de H", tipo: "dictado", pregunta: "almohada", opciones: [], respuesta: "almohada", explicacion: "Lleva H intercalada." },
+    { id: 84, categoria: "Uso de H", tipo: "completar", pregunta: "El conejo come zana_oria.", opciones: [], respuesta: "zanahoria", explicacion: "Lleva H intercalada antes de la O." },
+    { id: 85, categoria: "C/S/Z", tipo: "opcion", pregunta: "Es un alumno ___.", opciones: ["excelente", "escelente"], respuesta: "excelente", explicacion: "Se escribe con la combinación XC." },
+    { id: 86, categoria: "C/S/Z", tipo: "dictado", pregunta: "excusa", opciones: [], respuesta: "excusa", explicacion: "Se escribe con la combinación XC." },
+    { id: 87, categoria: "LL/Y", tipo: "opcion", pregunta: "No creo que él ___ llegado aún.", opciones: ["halla", "haya"], respuesta: "haya", explicacion: "Viene del verbo haber, se escribe con Y." },
+    { id: 88, categoria: "LL/Y", tipo: "opcion", pregunta: "La sede principal se ___ en Madrid.", opciones: ["haya", "halla"], respuesta: "halla", explicacion: "Viene del verbo hallar (encontrar o estar ubicado físicamente). Se escribe con LL." },
+    { id: 89, categoria: "Juntas/Separadas", tipo: "opcion", pregunta: "No podré ayudarte ___ me pagas.", opciones: ["si no", "sino"], respuesta: "si no", explicacion: "Introduce una condición (si) y una negación (no). Va separado." },
+    { id: 90, categoria: "Juntas/Separadas", tipo: "opcion", pregunta: "El sol está muy fuerte al ___.", opciones: ["mediodía", "medio día"], respuesta: "mediodía", explicacion: "Se refiere al momento específico del día (12:00 PM), por lo tanto se escribe junto y con tilde." }
+    
 ];
