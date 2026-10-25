@@ -6,7 +6,6 @@ if ('serviceWorker' in navigator) {
 }
 
 let ejActual = null;
-let ultimoId = null;
 let textoActual = "";
 
 // Cargar LocalStorage
@@ -52,10 +51,22 @@ function borrarLetra() {
     document.getElementById('pantalla-texto').innerText = textoActual;
 }
 
+// SISTEMA DE CICLO Y BLOQUEO DE PREGUNTAS
 function obtenerSiguienteEjercicio() {
+    let pendientesIds = JSON.parse(localStorage.getItem('ortografia_pendientes'));
+    
+    // Si no existe la lista o se vació (terminaste el ciclo), la llenamos con todos los IDs
+    if (!pendientesIds || pendientesIds.length === 0) {
+        pendientesIds = EJERCICIOS.map(ej => ej.id);
+        // Si no es la primera vez que se carga, avisamos al usuario del reseteo
+        if (localStorage.getItem('ortografia_pendientes') !== null) {
+            alert("¡Felicidades! Has completado todas las palabras del diccionario. El ciclo se reiniciará para que sigas practicando.");
+        }
+    }
+
+    // Buscamos la peor categoría para priorizar el aprendizaje
     let peorCategoria = null;
     let peorRendimiento = 101;
-
     for (const [cat, data] of Object.entries(stats)) {
         if (data.intentos > 0) {
             let rendimiento = (data.aciertos / data.intentos) * 100;
@@ -66,16 +77,28 @@ function obtenerSiguienteEjercicio() {
         }
     }
 
-    let posibles = [];
-    if (peorCategoria && Math.random() < 0.5) {
-        posibles = EJERCICIOS.filter(ej => ej.categoria === peorCategoria && ej.id !== ultimoId);
-    }
-    if (posibles.length === 0) {
-        posibles = EJERCICIOS.filter(ej => ej.id !== ultimoId);
-    }
-    if (posibles.length === 0) posibles = EJERCICIOS;
+    let idElegido = null;
+    
+    // Filtrar los IDs pendientes que pertenecen a la peor categoría
+    let posiblesPeorCat = pendientesIds.filter(id => {
+        let ej = EJERCICIOS.find(e => e.id === id);
+        return ej && ej.categoria === peorCategoria;
+    });
 
-    return posibles[Math.floor(Math.random() * posibles.length)];
+    // 50% de probabilidad de dar una pregunta de la peor categoría (si quedan disponibles)
+    if (posiblesPeorCat.length > 0 && Math.random() < 0.5) {
+        idElegido = posiblesPeorCat[Math.floor(Math.random() * posiblesPeorCat.length)];
+    } else {
+        // Sino, elegimos cualquier pregunta pendiente al azar
+        idElegido = pendientesIds[Math.floor(Math.random() * pendientesIds.length)];
+    }
+
+    // Bloqueamos la pregunta actual eliminándola de la lista de pendientes
+    pendientesIds = pendientesIds.filter(id => id !== idElegido);
+    localStorage.setItem('ortografia_pendientes', JSON.stringify(pendientesIds));
+
+    // Retornamos el objeto completo del ejercicio elegido
+    return EJERCICIOS.find(ej => ej.id === idElegido);
 }
 
 function cargarEjercicio() {
@@ -90,9 +113,11 @@ function cargarEjercicio() {
     document.getElementById('area-opciones').innerHTML = "";
     
     ejActual = obtenerSiguienteEjercicio();
-    ultimoId = ejActual.id;
     
-    document.getElementById('ej-categoria').textContent = ejActual.categoria;
+    // Mostrar cuantas faltan en el ciclo
+    let quedan = JSON.parse(localStorage.getItem('ortografia_pendientes')).length;
+    document.getElementById('ej-categoria').textContent = `${ejActual.categoria} (Faltan: ${quedan})`;
+    
     const ejPregunta = document.getElementById('ej-pregunta');
     
     if (ejActual.tipo === 'opcion') {
@@ -131,10 +156,9 @@ function procesarRespuesta(respuestaUsuario, botonPresionado = null) {
     const corrLimpia = ejActual.respuesta.toLowerCase();
     const esCorrecto = (respLimpia === corrLimpia);
     
-    // Analizador Inteligente de Errores (NUEVO)
+    // Analizador de Tildes
     let detalleError = "";
     if (!esCorrecto) {
-        // Quitamos tildes para comparar la base de la palabra
         const respSinTildes = respLimpia.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const corrSinTildes = corrLimpia.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         
@@ -232,4 +256,4 @@ function limpiarErrores() {
 
 inicializarStats();
 cargarEjercicio();
-      
+          
