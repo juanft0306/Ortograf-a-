@@ -77,5 +77,18 @@ const EJERCICIOS = [
     // Homófonas
     { id: 62, categoria: "Homófonas", tipo: "opcion", pregunta: "El documento me ___ en la verdad.", opciones: ["basa", "vaza", "vasa"], respuesta: "basa", explicacion: "Basar (apoyar algo en una base) se escribe con S y B." },
     { id: 63, categoria: "Homófonas", tipo: "opcion", pregunta: "Me sirvió agua en un ___.", opciones: ["vaso", "baso"], respuesta: "vaso", explicacion: "El recipiente para beber se escribe con V." },
-    { id: 64, categoria: "Homófonas", tipo: "opcion", pregunta: "Tengo un ___ en mi zapato.", opciones: ["agujero", "agugero"], respuesta: "agujero", explicacion: "Se escribe con J." }
+    { id: 64, categoria: "Homófonas", tipo: "opcion", pregunta: "Tengo un ___ en mi zapato.", opciones: ["agujero", "agugero"], respuesta: "agujero", explicacion: "Se escribe con J." },
+
+    //extras por errores 
+    { id: 65, categoria: "B/V", tipo: "dictado", pregunta: "vivir", opciones: [], respuesta: "vivir", explicacion: "Los verbos terminados en -bir van con B (escribir), pero las excepciones son hervir, servir y vivir." },
+    { id: 66, categoria: "B/V", tipo: "completar", pregunta: "El agua empezó a her_i_ (escribe la palabra completa).", opciones: [], respuesta: "hervir", explicacion: "Hervir es excepción a la regla de -bir, va con V. Tampoco lleva tilde porque es aguda terminada en R." },
+    { id: 67, categoria: "C/S/Z", tipo: "opcion", pregunta: "Tengo la ___ de que todo saldrá bien.", opciones: ["ilusión", "ilución"], respuesta: "ilusión", explicacion: "Deriva del adjetivo iluso (terminado en -so), por lo que su terminación es -sión con S." },
+    { id: 68, categoria: "C/S/Z", tipo: "opcion", pregunta: "El arquero tiene mucha ___.", opciones: ["precisión", "presición", "precición"], respuesta: "precisión", explicacion: "Viene de preciso (S). Se escribe primero con C y luego con S." },
+    { id: 69, categoria: "C/S/Z", tipo: "completar", pregunta: "Escribe el plural de 'cruz'.", opciones: [], respuesta: "cruces", explicacion: "Al pasar al plural, la Z final cambia a C (cruz -> cruces)." },
+    { id: 70, categoria: "Tildes", tipo: "completar", pregunta: "Plural de 'lápiz' con su acento correcto.", opciones: [], respuesta: "lápices", explicacion: "La Z cambia a C, y conserva su tilde porque se vuelve esdrújula (todas las esdrújulas llevan tilde)." },
+    { id: 71, categoria: "Tildes", tipo: "opcion", pregunta: "___ teléfono está sonando.", opciones: ["El", "Él"], respuesta: "El", explicacion: "'El' sin tilde es artículo que acompaña al sustantivo (el teléfono)." },
+    { id: 72, categoria: "Tildes", tipo: "opcion", pregunta: "El regalo es para ___.", opciones: ["él", "el"], respuesta: "él", explicacion: "'Él' con tilde es pronombre personal referencial a una persona." },
+    { id: 73, categoria: "Tildes", tipo: "opcion", pregunta: "Dile a ___ que venga.", opciones: ["él", "el"], respuesta: "él", explicacion: "'Él' con tilde reemplaza el nombre de un hombre, lleva tilde." },
+    { id: 74, categoria: "C/S/Z", tipo: "dictado", pregunta: "televisión", opciones: [], respuesta: "televisión", explicacion: "Deriva de televisor (terminado en -sor), por lo que lleva -sión con S." }
+        
 ];
