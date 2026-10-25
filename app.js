@@ -1,11 +1,7 @@
-// app.js
-
 // 1. Registrar Service Worker para Modo Offline
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
-      console.log('Modo Offline Activado!', reg);
-    });
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 
@@ -13,7 +9,7 @@ let ejActual = null;
 let ultimoId = null;
 let textoActual = "";
 
-// Cargar LocalStorage (Estadísticas y Errores)
+// Cargar LocalStorage
 let stats = JSON.parse(localStorage.getItem('ortografia_stats')) || {};
 let historialErrores = JSON.parse(localStorage.getItem('ortografia_errores')) || [];
 
@@ -135,12 +131,23 @@ function procesarRespuesta(respuestaUsuario, botonPresionado = null) {
     const corrLimpia = ejActual.respuesta.toLowerCase();
     const esCorrecto = (respLimpia === corrLimpia);
     
+    // Analizador Inteligente de Errores (NUEVO)
+    let detalleError = "";
+    if (!esCorrecto) {
+        // Quitamos tildes para comparar la base de la palabra
+        const respSinTildes = respLimpia.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const corrSinTildes = corrLimpia.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        
+        if (respSinTildes === corrSinTildes) {
+            detalleError = "<br><br><span style='color: #b91c1c;'>⚠️ <strong>Detalle:</strong> Tienes las letras correctas, pero te equivocaste en la <strong>tilde</strong>.</span>";
+        }
+    }
+    
     // Guardar Estadísticas
     stats[ejActual.categoria].intentos += 1;
     if (esCorrecto) {
         stats[ejActual.categoria].aciertos += 1;
     } else {
-        // Guardar Error para Gemini (Máximo guardamos los últimos 50)
         historialErrores.unshift({
             categoria: ejActual.categoria,
             pregunta: ejActual.pregunta,
@@ -166,7 +173,7 @@ function procesarRespuesta(respuestaUsuario, botonPresionado = null) {
     fb.className = 'feedback ' + (esCorrecto ? 'correct' : 'incorrect');
     
     document.getElementById('fb-titulo').textContent = esCorrecto ? "¡Correcto! ✅" : `❌ Era: ${ejActual.respuesta}`;
-    document.getElementById('fb-explicacion').innerHTML = `<strong>Regla:</strong> ${ejActual.explicacion}`;
+    document.getElementById('fb-explicacion').innerHTML = `<strong>Regla:</strong> ${ejActual.explicacion} ${detalleError}`;
 }
 
 function cargarDiagnostico() {
@@ -194,51 +201,35 @@ function cargarDiagnostico() {
     container.innerHTML = html;
 }
 
-// ------------------------------------
-// NUEVAS FUNCIONES PARA GESTIONAR ERRORES
-// ------------------------------------
-
 function generarTextoErrores() {
-    if (historialErrores.length === 0) return "¡Felicidades! No tienes errores registrados aún.";
-    
-    let txt = "Hola Gemini, he estado practicando ortografía y cometí estos errores. Por favor, analízalos y genérame nuevos ejercicios en formato JSON enfocados en solucionar mis debilidades:\n\n";
-    
+    if (historialErrores.length === 0) return "No tienes errores registrados aún.";
+    let txt = "Analiza estos errores y genérame nuevos ejercicios en formato JSON enfocados en mis debilidades:\n\n";
     historialErrores.forEach((err, i) => {
         txt += `${i+1}. Categoría: [${err.categoria}]\n`;
-        if (err.pregunta.includes("¿")) {
-            txt += `   Audio/Dictado\n`;
-        } else {
-            txt += `   Pregunta: "${err.pregunta}"\n`;
-        }
-        txt += `   Yo escribí: "${err.yo_escribi}"\n`;
-        txt += `   Lo correcto era: "${err.era_correcta}"\n\n`;
+        txt += err.pregunta.includes("¿") ? `   Audio/Dictado\n` : `   Pregunta: "${err.pregunta}"\n`;
+        txt += `   Yo escribí: "${err.yo_escribi}" | Correcto: "${err.era_correcta}"\n\n`;
     });
-    
     return txt;
 }
 
 function cargarErrores() {
-    const texto = generarTextoErrores();
-    document.getElementById('texto-errores').textContent = texto;
+    document.getElementById('texto-errores').textContent = generarTextoErrores();
 }
 
 function copiarErrores() {
-    const texto = generarTextoErrores();
-    navigator.clipboard.writeText(texto).then(() => {
-        alert("¡Texto copiado! Pégalo en el chat de Gemini.");
-    }).catch(err => {
-        alert("Error al copiar. Selecciona el texto manualmente.");
-    });
+    navigator.clipboard.writeText(generarTextoErrores()).then(() => {
+        alert("¡Texto copiado!");
+    }).catch(() => alert("Error al copiar."));
 }
 
 function limpiarErrores() {
-    if(confirm("¿Seguro que quieres borrar tu historial de errores? (Tus estadísticas no se borrarán)")) {
+    if(confirm("¿Borrar historial de errores?")) {
         historialErrores = [];
         localStorage.setItem('ortografia_errores', JSON.stringify(historialErrores));
         cargarErrores();
     }
 }
 
-// Inicializar
 inicializarStats();
 cargarEjercicio();
+      
